@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/appointment")
@@ -31,6 +33,63 @@ public class AppointmentController {
     public List<Appointment> getAllAppointments(){
         return appointmentsRepository.findAll();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Appointment> updateAppointment(@PathVariable Long id, @RequestBody Appointment updatedAppointment){
+        Optional<Appointment> optionalAppointment = appointmentsRepository.findById(id);
+
+        if(optionalAppointment.isPresent()){
+            Appointment appointment = optionalAppointment.get();
+            appointment.setName(updatedAppointment.getName());
+            appointment.setAge(updatedAppointment.getAge());
+            appointment.setSymptoms(updatedAppointment.getSymptoms());
+            appointment.setNumber(updatedAppointment.getNumber());
+
+            Appointment savedAppointment = appointmentsRepository.save(appointment);
+            return ResponseEntity.ok(savedAppointment);
+        }
+        else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Appointment> patchAppoinment(@PathVariable Long id, @RequestBody Map<String, Object> updates){
+
+        Optional<Appointment> optionalAppointment = appointmentsRepository.findById(id);
+
+        if(optionalAppointment.isPresent()){
+
+            Appointment appointment = optionalAppointment.get();
+
+            if(updates.containsKey("name")){
+                appointment.setName((String) updates.get("name"));
+            }
+
+            if(updates.containsKey("age")){
+                appointment.setAge((String) updates.get("age"));
+            }
+
+            if(updates.containsKey("symptoms")){
+                appointment.setSymptoms((String) updates.get("symptoms"));
+            }
+
+            if(updates.containsKey("number")){
+                appointment.setNumber((String) updates.get("number"));
+            }
+
+            Appointment savedAppointment = appointmentsRepository.save(appointment);
+            return ResponseEntity.ok(savedAppointment);
+
+        }
+
+        else {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteAppointment(@PathVariable Long id){
